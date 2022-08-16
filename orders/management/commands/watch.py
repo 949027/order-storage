@@ -31,7 +31,7 @@ def get_sheet(spread_sheet_id):
 
     result = service.spreadsheets().values().batchGet(
         spreadsheetId=spread_sheet_id,
-        ranges='A2:D14',#FIXME вычислять диапазон автоматом
+        ranges='A2:D',
     ).execute()
     return result['valueRanges'][0]['values']
 
