@@ -34,6 +34,8 @@ CURRENCY_ID = env('CURRENCY_ID', 'R01235')
 TELEGRAM_TOKEN = env('TELEGRAM_TOKEN')
 
 TELEGRAM_CHAT_ID = env('TELEGRAM_CHAT_ID')
+
+DELAY_TIME = env.int('DELAY_TIME', 60)
 # Application definition
 
 INSTALLED_APPS = [
@@ -80,9 +82,14 @@ WSGI_APPLICATION = 'order_storage.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(default=env('DB_URL'))
-}
+DATABASES = {'default': dj_database_url.config(
+    default='postgres://{}:{}@db:5432/{}'.format(
+        env('POSTGRES_USER'),
+        env('POSTGRES_PASSWORD'),
+        env('POSTGRES_DB'),
+    ),
+)}
+
 
 
 # Password validation
