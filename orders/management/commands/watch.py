@@ -1,17 +1,15 @@
 import time
-
+from datetime import datetime
+import requests
 import telegram
 from bs4 import BeautifulSoup
-from django.core.management.base import BaseCommand, CommandError
-import os
+from django.core.management.base import BaseCommand
 import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from order_storage import settings
 from orders.models import Order
-from datetime import datetime
-import requests
 
 
 def get_currency_price(currency_id):
@@ -50,9 +48,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Отдельный command для отслеживания изменений в Google sheets.
-        1) добавляет запись в БД, если такого заказа нет;
-        2) обновляет запись в БД если заказ изменился;
-        3) отправляет предупреждение в телеграм если истек срок поставки.
+        1) получает таблицу из Google sheet;
+        2) получает курс валюты;
+        3) добавляет/обновляет/удаляет запись в БД;
+        4) отправляет предупреждение в телеграм если истек срок поставки.
         """
         try:
             bot = telegram.Bot(token=settings.TELEGRAM_TOKEN)
@@ -63,6 +62,7 @@ class Command(BaseCommand):
             return error
 
         while True:
+            order_ids = []
             for row in sheet:
                 delivery_date = datetime.strptime(row[3], '%d.%m.%Y').date()
                 usd_price = float(row[2])
@@ -75,9 +75,12 @@ class Command(BaseCommand):
                         'is_overdue': True if datetime.now().date() > delivery_date else False
                     }
                 )
+                order_ids.append(order.id)
                 if order.is_overdue and not order.expiration_message_sent:
                     send_alert(bot, order.id)
                     order.expiration_message_sent = True
                     order.save()
+
+            Order.objects.exclude(id__in=order_ids).delete()
 
             time.sleep(settings.DELAY_TIME)
