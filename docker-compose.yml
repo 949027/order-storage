@@ -25,8 +25,8 @@ services:
     depends_on:
       - db
 
-  watch:
-    container_name: watch
+  updater:
+    container_name: updater
     build:
       target: django
     command: python manage.py watch
