@@ -38,7 +38,7 @@ services:
       - ./.env
     depends_on:
       - db
-        web
+      - web
 
 volumes:
   db_data:
