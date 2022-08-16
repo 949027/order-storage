@@ -42,16 +42,18 @@ class Command(BaseCommand):
         try:
             spread_sheet_id = order_storage.settings.SPREADSHEET_ID
             sheet = get_sheet(spread_sheet_id)
-            currency_id = 'R01235'
+            currency_id = order_storage.settings.CURRENCY_ID
             currency_price = get_currency_price(currency_id)
             for order in sheet:
                 delivery_date = datetime.strptime(order[3], '%d.%m.%Y').date()
                 usd_price = float(order[2])
-                Order.objects.create(
+                Order.objects.update_or_create(
                     id=order[1],
-                    usd_price=usd_price,
-                    rub_price=usd_price * currency_price,
-                    delivery_date=delivery_date,
+                    defaults={
+                        'usd_price': usd_price,
+                        'rub_price': usd_price * currency_price,
+                        'delivery_date': delivery_date,
+                    }
                 )
         except HttpError as error:
             print(f"An error occurred: {error}")

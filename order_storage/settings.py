@@ -28,6 +28,8 @@ DEBUG = env.bool('DEBUG', True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
 SPREADSHEET_ID = env('SPREADSHEET_ID')
+
+CURRENCY_ID = env('CURRENCY_ID', 'R01235')
 # Application definition
 
 INSTALLED_APPS = [
