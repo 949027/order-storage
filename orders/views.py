@@ -1,3 +1,8 @@
 from django.shortcuts import render
 
-# Create your views here.
+from .models import Order
+
+
+def display_orders(request):
+    orders = Order.objects.all()
+    return render(request, 'index.html', context={'orders': orders})
