@@ -27,6 +27,7 @@ DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
+SPREADSHEET_ID = env('SPREADSHEET_ID')
 # Application definition
 
 INSTALLED_APPS = [

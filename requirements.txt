@@ -1,3 +1,8 @@
 environs[django]==9.3.2
 Django==4.1
 psycopg2-binary==2.9.3
+google-api-python-client==2.56.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==0.5.2
+lxml==4.9.1
+beautifulsoup4==4.11.1
