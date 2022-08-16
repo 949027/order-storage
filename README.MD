@@ -14,13 +14,12 @@ git clone https://github.com/949027/order-storage
 3) Создайте файл `.env` в корне проекта со следующими настройками.
 
 Необходимо:
-- `POSTGRES_DB`- имя БД;
 - `POSTGRES_USER` - имя пользователя БД;
 - `POSTGRES_PASSWORD` - пароль пользователя БД;
 - `SECRET_KEY` — [секретный ключ](https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-SECRET_KEY) проекта. Он отвечает за шифрование на сайте
 - `GOOGLE_CLOUD_SERVICE_ACCOUNT` - [сервисный аккаунт Google Cloud](https://cloud.google.com/iam/docs/creating-managing-service-accounts).
 - `SPREADSHEET_ID` - ID таблицы. Можно взять из URL таблицы. [См. пример](https://developers.google.com/sheets/api/guides/concepts).
-- `GOOGLE_APPLICATION_CREDENTIALS`- путь к файлу с ключами (как получить ключи [см. здесь](https://cloud.google.com/docs/authentication/getting-started))
+- `GOOGLE_APPLICATION_CREDENTIALS`- указать json-файл с ключами (предварительно нужно [получить файл](https://cloud.google.com/docs/authentication/getting-started) и положить в корень проекта)
 - `TELEGRAM_TOKEN` - токен для телеграм-бота (получить у `@BotFather` в Телеграме);
 - `TELEGRAM_CHAT_ID` - id пользователя в телеграме, которому направлять сообщения (получить у `@username_to_id_bot` в Телеграме);
 
@@ -34,11 +33,8 @@ git clone https://github.com/949027/order-storage
 ```commandline
 docker-compose up
 ```
-3) Выполните миграции:
-```commandline
-docker exec web python manage.py migrate
-```
-4) Создайте суперпользователя:
+
+3) В другом терминале создайте суперпользователя:
 ```commandline
 docker exec -it web python manage.py createsuperuser
 ```
