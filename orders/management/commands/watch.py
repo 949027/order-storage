@@ -1,3 +1,4 @@
+import telegram
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand, CommandError
 import os
@@ -5,7 +6,7 @@ import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-import order_storage.settings
+from order_storage import settings
 from orders.models import Order
 from datetime import datetime
 import requests
@@ -36,25 +37,38 @@ def get_sheet(spread_sheet_id):
     return result['valueRanges'][0]['values']
 
 
+def send_alert(bot, order_id):
+    text = f'У заказа № {order_id} истек срок поставки'
+    bot.send_message(
+        chat_id=settings.TELEGRAM_CHAT_ID,
+        text=text)
+
+
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+
+        bot = telegram.Bot(token=settings.TELEGRAM_TOKEN)
+        #while True:
         try:
-            spread_sheet_id = order_storage.settings.SPREADSHEET_ID
-            sheet = get_sheet(spread_sheet_id)
-            currency_id = order_storage.settings.CURRENCY_ID
-            currency_price = get_currency_price(currency_id)
-            for order in sheet:
-                delivery_date = datetime.strptime(order[3], '%d.%m.%Y').date()
-                usd_price = float(order[2])
-                Order.objects.update_or_create(
-                    id=order[1],
-                    defaults={
-                        'usd_price': usd_price,
-                        'rub_price': usd_price * currency_price,
-                        'delivery_date': delivery_date,
-                    }
-                )
+            currency_price = get_currency_price(settings.CURRENCY_ID)
+            sheet = get_sheet(settings.SPREADSHEET_ID)
         except HttpError as error:
             print(f"An error occurred: {error}")
             return error
+
+        for row in sheet:
+            delivery_date = datetime.strptime(row[3], '%d.%m.%Y').date()
+            usd_price = float(row[2])
+            order, _ = Order.objects.update_or_create(
+                id=row[1],
+                defaults={
+                    'usd_price': usd_price,
+                    'rub_price': usd_price * currency_price,
+                    'delivery_date': delivery_date,
+                    'is_overdue': True if datetime.now().date() > delivery_date else False
+                }
+            )
+            if order.is_overdue and not order.expiration_message_sent:
+                send_alert(bot, order.id)
+                order.expiration_message_sent = True
