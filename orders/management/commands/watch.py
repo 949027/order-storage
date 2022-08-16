@@ -80,4 +80,4 @@ class Command(BaseCommand):
                     order.expiration_message_sent = True
                     order.save()
 
-            time.sleep(60)
+            time.sleep(settings.DELAY_TIME)
